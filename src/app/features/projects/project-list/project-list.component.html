@@ -1,4 +1,87 @@
-<h1>Proyectos</h1>
-<a routerLink="/projects/new">Nuevo proyecto</a>
-<p>Lista de proyectos (búsqueda y filtros)</p>
-<a routerLink="/projects/1">Ver proyecto de ejemplo</a>
+<div class="page-header">
+  <h1 class="page-title">Proyectos</h1>
+  <a mat-flat-button color="primary" routerLink="/projects/new">
+    <mat-icon>add</mat-icon>
+    Nuevo proyecto
+  </a>
+</div>
+
+<mat-card class="filter-card">
+  <mat-card-content>
+    <div class="filter-row">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Buscar por nombre</mat-label>
+        <input matInput [formControl]="searchControl" placeholder="Nombre del proyecto...">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Estado</mat-label>
+        <mat-select [formControl]="statusControl">
+          <mat-option value="">Todos</mat-option>
+          <mat-option value="draft">Borrador</mat-option>
+          <mat-option value="active">Activo</mat-option>
+          <mat-option value="closed">Cerrado</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </mat-card-content>
+</mat-card>
+
+<mat-card>
+  <mat-card-content>
+    <table mat-table [dataSource]="projects()" class="full-width">
+
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Nombre</th>
+        <td mat-cell *matCellDef="let row">
+          <a [routerLink]="['/projects', row.id]" style="font-weight: 500;">{{ row.name }}</a>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Estado</th>
+        <td mat-cell *matCellDef="let row">
+          <span [class]="'status-badge status-' + row.status">{{ statusLabel(row.status) }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="startDate">
+        <th mat-header-cell *matHeaderCellDef>Inicio</th>
+        <td mat-cell *matCellDef="let row">{{ row.startDate }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="endDate">
+        <th mat-header-cell *matHeaderCellDef>Fin</th>
+        <td mat-cell *matCellDef="let row">{{ row.endDate }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="participants">
+        <th mat-header-cell *matHeaderCellDef>Participantes</th>
+        <td mat-cell *matCellDef="let row">{{ row.participantCount }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let row" class="actions-cell">
+          <a mat-icon-button [routerLink]="['/projects', row.id]" matTooltip="Ver detalle">
+            <mat-icon>visibility</mat-icon>
+          </a>
+          <a mat-icon-button [routerLink]="['/projects', row.id, 'edit']" matTooltip="Editar">
+            <mat-icon>edit</mat-icon>
+          </a>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell" [attr.colspan]="displayedColumns.length" style="padding: 24px; text-align: center; color: #757575;">
+          No se encontraron proyectos
+        </td>
+      </tr>
+    </table>
+
+    <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons></mat-paginator>
+  </mat-card-content>
+</mat-card>

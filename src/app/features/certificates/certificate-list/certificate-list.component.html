@@ -1,3 +1,83 @@
-<h1>Certificados</h1>
-<p>Búsqueda transversal de certificados</p>
-<a routerLink="/certificates/1">Ver certificado de ejemplo</a>
+<div class="page-header">
+  <h1 class="page-title">Certificados</h1>
+</div>
+
+<mat-card class="filter-card">
+  <mat-card-content>
+    <div class="filter-row">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Buscar por nombre o folio</mat-label>
+        <input matInput [formControl]="searchControl" placeholder="Participante, folio, proyecto...">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Estado</mat-label>
+        <mat-select [formControl]="statusControl">
+          <mat-option value="">Todos</mat-option>
+          <mat-option value="pending">Pendiente</mat-option>
+          <mat-option value="issued">Emitido</mat-option>
+          <mat-option value="revoked">Revocado</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </mat-card-content>
+</mat-card>
+
+<mat-card>
+  <mat-card-content>
+    <table mat-table [dataSource]="certificates()" class="full-width">
+
+      <ng-container matColumnDef="code">
+        <th mat-header-cell *matHeaderCellDef>Folio</th>
+        <td mat-cell *matCellDef="let row">
+          <code style="font-size: 12px; background: #f5f5f5; padding: 2px 6px; border-radius: 4px;">{{ row.code }}</code>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="participantName">
+        <th mat-header-cell *matHeaderCellDef>Participante</th>
+        <td mat-cell *matCellDef="let row" style="font-weight: 500;">{{ row.participantName }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="projectName">
+        <th mat-header-cell *matHeaderCellDef>Proyecto</th>
+        <td mat-cell *matCellDef="let row" class="text-secondary">{{ row.projectName }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="type">
+        <th mat-header-cell *matHeaderCellDef>Tipo</th>
+        <td mat-cell *matCellDef="let row">{{ row.type }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Estado</th>
+        <td mat-cell *matCellDef="let row">
+          <span [class]="'status-badge status-' + row.status">{{ statusLabel(row.status) }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="issuedAt">
+        <th mat-header-cell *matHeaderCellDef>Fecha de emisión</th>
+        <td mat-cell *matCellDef="let row">{{ row.issuedAt }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let row" class="actions-cell">
+          <a mat-icon-button [routerLink]="['/certificates', row.id]" matTooltip="Ver ficha">
+            <mat-icon>visibility</mat-icon>
+          </a>
+          <a mat-icon-button [routerLink]="['/certificates', row.id, 'preview']" matTooltip="Vista previa">
+            <mat-icon>picture_as_pdf</mat-icon>
+          </a>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons></mat-paginator>
+  </mat-card-content>
+</mat-card>

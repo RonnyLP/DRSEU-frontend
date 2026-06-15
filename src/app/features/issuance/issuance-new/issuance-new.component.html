@@ -1,3 +1,166 @@
-<h1>Solicitar emisión de certificados</h1>
-<p>Wizard: unitaria o en masa con mat-stepper (HU-emisión)</p>
-<a routerLink="../">Volver al detalle del proyecto</a>
+<div class="page-header">
+  <div class="flex-row">
+    <a mat-icon-button [routerLink]="['/projects', projectId()]" aria-label="Volver al proyecto">
+      <mat-icon>arrow_back</mat-icon>
+    </a>
+    <h1 class="page-title">Solicitar emisión de certificados</h1>
+  </div>
+</div>
+
+<mat-stepper [linear]="true" style="background: transparent;">
+
+  <!-- Paso 1: Seleccionar modo y participantes -->
+  <mat-step [stepControl]="modeForm" label="Modo y participantes">
+    <form [formGroup]="modeForm">
+      <div class="step-content">
+        <mat-card>
+          <mat-card-content>
+            <p style="font-weight: 500; margin-bottom: 12px;">Tipo de emisión</p>
+            <mat-radio-group formControlName="mode" style="display: flex; gap: 16px;">
+              <mat-radio-button value="single">Unitaria (1 participante)</mat-radio-button>
+              <mat-radio-button value="bulk">Masiva (varios participantes)</mat-radio-button>
+            </mat-radio-group>
+
+            @if (modeForm.controls.mode.value === 'single') {
+              <mat-form-field appearance="outline" style="margin-top: 16px; width: 100%; max-width: 480px;">
+                <mat-label>Seleccionar participante</mat-label>
+                <mat-select formControlName="participantId">
+                  @for (p of participants(); track p.id) {
+                    <mat-option [value]="p.id">{{ p.fullName }} — {{ p.participationType }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            }
+
+            @if (modeForm.controls.mode.value === 'bulk') {
+              <div style="margin-top: 16px;">
+                <p class="text-secondary" style="margin-bottom: 8px;">{{ selectedCount }} participante(s) seleccionado(s)</p>
+                <table mat-table [dataSource]="participants()">
+                  <ng-container matColumnDef="select">
+                    <th mat-header-cell *matHeaderCellDef>
+                      <mat-checkbox (change)="toggleAll($event.checked)" aria-label="Seleccionar todos"></mat-checkbox>
+                    </th>
+                    <td mat-cell *matCellDef="let row">
+                      <mat-checkbox [checked]="row.selected" (change)="toggleParticipant(row.id)"
+                                    [aria-label]="'Seleccionar ' + row.fullName"></mat-checkbox>
+                    </td>
+                  </ng-container>
+                  <ng-container matColumnDef="fullName">
+                    <th mat-header-cell *matHeaderCellDef>Nombre</th>
+                    <td mat-cell *matCellDef="let row">{{ row.fullName }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="participationType">
+                    <th mat-header-cell *matHeaderCellDef>Tipo de participación</th>
+                    <td mat-cell *matCellDef="let row">{{ row.participationType }}</td>
+                  </ng-container>
+                  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                </table>
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      </div>
+      <div class="step-actions">
+        <button mat-flat-button color="primary" matStepperNext>
+          Siguiente
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
+    </form>
+  </mat-step>
+
+  <!-- Paso 2: Tipo de certificado -->
+  <mat-step [stepControl]="typeForm" label="Tipo de certificado">
+    <form [formGroup]="typeForm">
+      <div class="step-content">
+        <mat-card>
+          <mat-card-content>
+            <mat-form-field appearance="outline" style="width: 100%; max-width: 480px;">
+              <mat-label>Tipo de certificado</mat-label>
+              <mat-select formControlName="certificateTypeId">
+                <mat-option value="1">Certificado de Participación</mat-option>
+                <mat-option value="2">Certificado de Ponente</mat-option>
+                <mat-option value="3">Certificado de Organizador</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <div class="flex-row" style="margin-top: 12px; gap: 8px; background: #e8f5e9; padding: 12px; border-radius: 8px;">
+              <mat-icon style="color: #2e7d32;">check_circle</mat-icon>
+              <span style="font-size: 14px; color: #2e7d32;">Plantilla configurada y lista para generar</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+      <div class="step-actions">
+        <button mat-button matStepperPrevious>
+          <mat-icon>arrow_back</mat-icon>
+          Anterior
+        </button>
+        <button mat-flat-button color="primary" matStepperNext [disabled]="typeForm.invalid">
+          Siguiente
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
+    </form>
+  </mat-step>
+
+  <!-- Paso 3: Vista previa -->
+  <mat-step label="Vista previa">
+    <div class="step-content">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Vista previa del certificado</mat-card-title>
+          <mat-card-subtitle>Muestra de cómo quedará el certificado generado</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="preview-frame" style="min-height: 320px; max-width: 560px; background: #fafafa;">
+            <div style="text-align: center; color: #9e9e9e;">
+              <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #bdbdbd;">picture_as_pdf</mat-icon>
+              <p>Vista previa generada desde el backend</p>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    <div class="step-actions">
+      <button mat-button matStepperPrevious>
+        <mat-icon>arrow_back</mat-icon>
+        Anterior
+      </button>
+      <button mat-flat-button color="primary" matStepperNext>
+        Confirmar y emitir
+        <mat-icon>send</mat-icon>
+      </button>
+    </div>
+  </mat-step>
+
+  <!-- Paso 4: Confirmación -->
+  <mat-step label="Confirmar emisión">
+    <div class="step-content">
+      <mat-card>
+        <mat-card-content>
+          <div style="text-align: center; padding: 24px;">
+            <mat-icon style="font-size: 64px; width: 64px; height: 64px; color: var(--mat-sys-primary);">task_alt</mat-icon>
+            <h2 style="margin: 16px 0 8px;">¿Confirmar emisión?</h2>
+            <p class="text-secondary">
+              Se generarán los certificados para los participantes seleccionados.
+              Este proceso es asíncrono y podrás seguir su estado en la bandeja de solicitudes.
+            </p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    <div class="step-actions">
+      <button mat-button matStepperPrevious>
+        <mat-icon>arrow_back</mat-icon>
+        Anterior
+      </button>
+      <button mat-flat-button color="primary" (click)="onConfirm()">
+        <mat-icon>send</mat-icon>
+        Emitir certificados
+      </button>
+    </div>
+  </mat-step>
+
+</mat-stepper>

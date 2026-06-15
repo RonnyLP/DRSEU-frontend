@@ -1,3 +1,51 @@
-<h1>Iniciar sesión</h1>
-<a routerLink="/auth/recover-password">¿Olvidaste tu contraseña?</a>
-<a routerLink="/auth/register">Registrarse</a>
+<div class="auth-container">
+  <mat-card class="auth-card">
+    <mat-card-header>
+      <div class="auth-logo">
+        <mat-icon>verified</mat-icon>
+        <div>
+          <mat-card-title>DRSEU</mat-card-title>
+          <mat-card-subtitle>Sistema de Gestión de Certificados Universitarios</mat-card-subtitle>
+        </div>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Correo electrónico</mat-label>
+          <input matInput formControlName="email" type="email" autocomplete="email">
+          <mat-icon matSuffix>email</mat-icon>
+          @if (form.controls.email.hasError('required') && form.controls.email.touched) {
+            <mat-error>El correo es requerido</mat-error>
+          } @else if (form.controls.email.hasError('email') && form.controls.email.touched) {
+            <mat-error>Ingresa un correo válido</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Contraseña</mat-label>
+          <input matInput formControlName="password"
+                 [type]="hidePassword() ? 'password' : 'text'"
+                 autocomplete="current-password">
+          <button mat-icon-button matSuffix type="button"
+                  (click)="hidePassword.set(!hidePassword())"
+                  [attr.aria-label]="hidePassword() ? 'Mostrar contraseña' : 'Ocultar contraseña'">
+            <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (form.controls.password.hasError('required') && form.controls.password.touched) {
+            <mat-error>La contraseña es requerida</mat-error>
+          }
+        </mat-form-field>
+
+        <button mat-flat-button color="primary" type="submit" class="full-width submit-btn">
+          Iniciar sesión
+        </button>
+      </form>
+    </mat-card-content>
+
+    <mat-card-actions>
+      <a mat-button routerLink="/auth/recover-password">¿Olvidaste tu contraseña?</a>
+    </mat-card-actions>
+  </mat-card>
+</div>
