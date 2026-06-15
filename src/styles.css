@@ -1,1 +1,305 @@
-/* You can add global styles to this file, and also import other style files */
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+/* ── Auth layout ── */
+.auth-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #f0f4f8;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+}
+
+.auth-card mat-card-header {
+  margin-bottom: 8px;
+}
+
+.auth-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.auth-logo mat-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: var(--mat-sys-primary);
+}
+
+.submit-btn {
+  margin-top: 8px;
+  height: 44px;
+}
+
+/* ── Shell layout ── */
+.sidenav-container {
+  height: 100%;
+}
+
+.sidenav {
+  width: 248px;
+  border-right: none !important;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
+}
+
+.sidenav-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 16px 16px;
+  color: var(--mat-sys-primary);
+}
+
+.sidenav-brand mat-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+}
+
+.sidenav-brand-text h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.sidenav-brand-text p {
+  margin: 0;
+  font-size: 11px;
+  color: var(--mat-sys-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.main-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.toolbar-spacer { flex: 1; }
+
+.page-content {
+  padding: 24px;
+  max-width: 1280px;
+}
+
+/* ── Active nav link ── */
+.active-link {
+  background-color: var(--mat-sys-secondary-container) !important;
+  color: var(--mat-sys-on-secondary-container) !important;
+  border-radius: 28px;
+}
+
+.active-link mat-icon {
+  color: var(--mat-sys-on-secondary-container) !important;
+}
+
+/* ── Page header ── */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+/* ── Filters ── */
+.filter-card {
+  margin-bottom: 16px;
+}
+
+.filter-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.filter-row mat-form-field {
+  flex: 1;
+  min-width: 200px;
+}
+
+.search-field { flex: 2; }
+
+/* ── Table ── */
+.full-width { width: 100%; }
+
+.actions-cell {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.mat-column-actions {
+  width: 120px;
+  text-align: right;
+}
+
+/* ── Status badges ── */
+.status-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.status-draft     { background: #e0e0e0; color: #424242; }
+.status-active    { background: #c8e6c9; color: #1b5e20; }
+.status-closed    { background: #ffcdd2; color: #b71c1c; }
+.status-pending   { background: #fff3e0; color: #bf360c; }
+.status-queued    { background: #e3f2fd; color: #0d47a1; }
+.status-processing { background: #ede7f6; color: #4527a0; }
+.status-completed { background: #e8f5e9; color: #1b5e20; }
+.status-failed    { background: #fce4ec; color: #880e4f; }
+.status-issued    { background: #e8f5e9; color: #1b5e20; }
+.status-revoked   { background: #fce4ec; color: #880e4f; }
+
+/* ── Forms ── */
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.form-row mat-form-field { flex: 1; min-width: 200px; }
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+/* ── Detail card ── */
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.detail-field label {
+  font-size: 12px;
+  color: var(--mat-sys-on-surface-variant);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.detail-field p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* ── Certificate editor ── */
+.editor-container {
+  display: flex;
+  gap: 16px;
+  height: calc(100vh - 160px);
+}
+
+.editor-canvas-area {
+  flex: 1;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  position: relative;
+  overflow: hidden;
+}
+
+.editor-panel {
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+/* ── Verify page ── */
+.verify-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #f0f4f8;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.verify-card {
+  width: 100%;
+  max-width: 560px;
+}
+
+/* ── Stepper ── */
+.step-content {
+  padding: 16px 0;
+}
+
+.step-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+/* ── Preview ── */
+.preview-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+}
+
+.preview-frame {
+  width: 100%;
+  max-width: 800px;
+  min-height: 560px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* ── Utilities ── */
+.spacer { flex: 1; }
+.mt-16 { margin-top: 16px; }
+.mb-16 { margin-bottom: 16px; }
+.gap-8 { gap: 8px; }
+.flex-row { display: flex; align-items: center; gap: 8px; }
+.text-secondary { color: var(--mat-sys-on-surface-variant); }

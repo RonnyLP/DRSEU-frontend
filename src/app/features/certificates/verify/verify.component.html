@@ -1,2 +1,69 @@
-<h1>Verificación de certificado</h1>
-<p>Página pública de verificación por folio (sin autenticación)</p>
+<div class="verify-container">
+  <mat-card class="verify-card">
+    <mat-card-header>
+      <div class="auth-logo">
+        <mat-icon>verified</mat-icon>
+        <div>
+          <mat-card-title>Verificar certificado</mat-card-title>
+          <mat-card-subtitle>Ingresa el folio del certificado para verificar su autenticidad</mat-card-subtitle>
+        </div>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="flex-row" style="gap: 8px; margin-top: 8px;">
+        <mat-form-field appearance="outline" style="flex: 1;">
+          <mat-label>Código de verificación</mat-label>
+          <input matInput [formControl]="codeControl" placeholder="CERT-2025-XXXX"
+                 (keydown.enter)="onVerify()">
+          <mat-icon matSuffix>qr_code</mat-icon>
+        </mat-form-field>
+        <button mat-flat-button color="primary" style="height: 56px; margin-bottom: 22px;"
+                (click)="onVerify()" [disabled]="codeControl.invalid || state() === 'loading'">
+          @if (state() === 'loading') {
+            Verificando...
+          } @else {
+            Verificar
+          }
+        </button>
+      </div>
+
+      @if (state() === 'valid' && result(); as cert) {
+        <mat-divider style="margin: 8px 0 16px;"></mat-divider>
+        <div class="flex-row" style="gap: 8px; margin-bottom: 16px;">
+          <mat-icon style="color: #2e7d32; font-size: 32px; width: 32px; height: 32px;">check_circle</mat-icon>
+          <div>
+            <p style="margin: 0; font-weight: 600; color: #2e7d32;">Certificado válido</p>
+            <p style="margin: 0; font-size: 12px; color: #757575;">Este certificado es auténtico y fue emitido por UNTELS</p>
+          </div>
+        </div>
+        <div class="detail-grid">
+          <div class="detail-field">
+            <label>Participante</label>
+            <p>{{ cert.participantName }}</p>
+          </div>
+          <div class="detail-field">
+            <label>Proyecto</label>
+            <p>{{ cert.projectName }}</p>
+          </div>
+          <div class="detail-field">
+            <label>Tipo de certificado</label>
+            <p>{{ cert.type }}</p>
+          </div>
+          <div class="detail-field">
+            <label>Fecha de emisión</label>
+            <p>{{ cert.issuedAt }}</p>
+          </div>
+        </div>
+      }
+
+      @if (state() === 'invalid') {
+        <mat-divider style="margin: 8px 0 16px;"></mat-divider>
+        <div class="flex-row" style="gap: 8px;">
+          <mat-icon style="color: #b71c1c;">cancel</mat-icon>
+          <p style="margin: 0; color: #b71c1c;">No se encontró ningún certificado con ese código.</p>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

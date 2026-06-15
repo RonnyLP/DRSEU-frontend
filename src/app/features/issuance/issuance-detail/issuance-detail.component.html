@@ -1,3 +1,94 @@
-<h1>Detalle de solicitud de emisión</h1>
-<p>Estado + certificados generados (polling / SSE)</p>
-<a routerLink="/issuance-requests">Volver a solicitudes</a>
+<div class="page-header">
+  <div class="flex-row">
+    <a mat-icon-button routerLink="/issuance-requests" aria-label="Volver">
+      <mat-icon>arrow_back</mat-icon>
+    </a>
+    <h1 class="page-title">Solicitud de emisión</h1>
+    <span [class]="'status-badge status-' + request().status">{{ statusLabel(request().status) }}</span>
+  </div>
+  @if (request().status === 'completed') {
+    <button mat-flat-button color="primary">
+      <mat-icon>download</mat-icon>
+      Descargar ZIP
+    </button>
+  }
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 16px; max-width: 800px;">
+
+  <mat-card>
+    <mat-card-content>
+      <div class="detail-grid">
+        <div class="detail-field">
+          <label>Proyecto</label>
+          <p>{{ request().projectName }}</p>
+        </div>
+        <div class="detail-field">
+          <label>Modo</label>
+          <p>{{ request().mode === 'single' ? 'Unitaria' : 'Masiva' }}</p>
+        </div>
+        <div class="detail-field">
+          <label>Fecha de solicitud</label>
+          <p>{{ request().createdAt }}</p>
+        </div>
+        <div class="detail-field">
+          <label>Progreso</label>
+          <p>{{ request().processed }} / {{ request().total }} certificados</p>
+        </div>
+      </div>
+
+      @if (request().status === 'processing') {
+        <mat-progress-bar mode="determinate" [value]="progress" style="margin-top: 12px; border-radius: 4px;"></mat-progress-bar>
+      }
+      @if (request().status === 'queued') {
+        <mat-progress-bar mode="buffer" style="margin-top: 12px; border-radius: 4px;"></mat-progress-bar>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  @if (certificates().length > 0) {
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Certificados generados</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <table mat-table [dataSource]="certificates()" class="full-width">
+
+          <ng-container matColumnDef="participantName">
+            <th mat-header-cell *matHeaderCellDef>Participante</th>
+            <td mat-cell *matCellDef="let row" style="font-weight: 500;">{{ row.participantName }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="code">
+            <th mat-header-cell *matHeaderCellDef>Folio</th>
+            <td mat-cell *matCellDef="let row">
+              <code style="font-size: 12px; background: #f5f5f5; padding: 2px 6px; border-radius: 4px;">{{ row.code }}</code>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Estado</th>
+            <td mat-cell *matCellDef="let row">
+              <span [class]="'status-badge status-' + row.status">
+                {{ row.status === 'issued' ? 'Emitido' : 'Fallido' }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let row" class="actions-cell">
+              <a mat-icon-button [routerLink]="['/certificates', row.id]" matTooltip="Ver ficha">
+                <mat-icon>visibility</mat-icon>
+              </a>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </mat-card-content>
+    </mat-card>
+  }
+
+</div>

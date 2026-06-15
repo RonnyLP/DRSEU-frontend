@@ -1,11 +1,55 @@
-<nav aria-label="Navegación principal">
-  <a routerLink="/projects" routerLinkActive="active">Proyectos</a>
-  <a routerLink="/issuance-requests" routerLinkActive="active">Solicitudes de emisión</a>
-  <a routerLink="/certificates" routerLinkActive="active">Certificados</a>
-  <a routerLink="/certificate-types" routerLinkActive="active">Tipos de certificado</a>
-  <a routerLink="/auth/change-password" routerLinkActive="active">Cambiar contraseña</a>
-  <button type="button" aria-label="Cerrar sesión">Cerrar sesión</button>
-</nav>
-<main>
-  <router-outlet />
-</main>
+<mat-sidenav-container class="sidenav-container">
+
+  <mat-sidenav #sidenav mode="side" [opened]="true" class="sidenav">
+    <div class="sidenav-brand">
+      <mat-icon>verified</mat-icon>
+      <div class="sidenav-brand-text">
+        <h2>DRSEU</h2>
+        <p>Sistema de Certificados</p>
+      </div>
+    </div>
+
+    <mat-divider />
+
+    <mat-nav-list>
+      @for (item of navItems; track item.route) {
+        <a mat-list-item
+           [routerLink]="item.route"
+           routerLinkActive="active-link"
+           [routerLinkActiveOptions]="{ exact: false }">
+          <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+          <span matListItemTitle>{{ item.label }}</span>
+        </a>
+      }
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar color="primary" class="main-toolbar">
+      <button mat-icon-button (click)="toggleSidenav()" aria-label="Alternar menú lateral">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span class="toolbar-spacer"></span>
+      <button mat-icon-button [matMenuTriggerFor]="userMenu" aria-label="Menú de usuario">
+        <mat-icon>account_circle</mat-icon>
+      </button>
+    </mat-toolbar>
+
+    <mat-menu #userMenu="matMenu">
+      <a mat-menu-item routerLink="/auth/change-password">
+        <mat-icon>lock</mat-icon>
+        <span>Cambiar contraseña</span>
+      </a>
+      <mat-divider />
+      <button mat-menu-item>
+        <mat-icon>logout</mat-icon>
+        <span>Cerrar sesión</span>
+      </button>
+    </mat-menu>
+
+    <div class="page-content">
+      <router-outlet />
+    </div>
+  </mat-sidenav-content>
+
+</mat-sidenav-container>

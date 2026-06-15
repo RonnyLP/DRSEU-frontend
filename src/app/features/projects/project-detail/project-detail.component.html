@@ -1,8 +1,111 @@
-<h1>Detalle de proyecto</h1>
-<nav aria-label="Acciones del proyecto">
-  <a routerLink="edit">Editar proyecto</a>
-  <a routerLink="participants">Participantes</a>
-  <a routerLink="template">Editor de plantilla</a>
-  <a routerLink="issuance/new">Solicitar emisión</a>
-</nav>
-<a routerLink="/projects">Volver a proyectos</a>
+<div class="page-header">
+  <div class="flex-row">
+    <a mat-icon-button routerLink="/projects" aria-label="Volver a proyectos">
+      <mat-icon>arrow_back</mat-icon>
+    </a>
+    <h1 class="page-title">{{ project().name }}</h1>
+    <span [class]="'status-badge status-' + project().status">{{ statusLabel(project().status) }}</span>
+  </div>
+  <div class="flex-row gap-8">
+    <a mat-button [routerLink]="['edit']">
+      <mat-icon>edit</mat-icon>
+      Editar
+    </a>
+    <a mat-flat-button color="primary" [routerLink]="['issuance/new']">
+      <mat-icon>send</mat-icon>
+      Solicitar emisión
+    </a>
+  </div>
+</div>
+
+<mat-tab-group animationDuration="200ms">
+
+  <mat-tab label="Información">
+    <div style="padding: 24px 0;">
+      <mat-card>
+        <mat-card-content>
+          <div class="detail-grid">
+            <div class="detail-field">
+              <label>Descripción</label>
+              <p>{{ project().description }}</p>
+            </div>
+            <div class="detail-field">
+              <label>Fecha de inicio</label>
+              <p>{{ project().startDate }}</p>
+            </div>
+            <div class="detail-field">
+              <label>Fecha de fin</label>
+              <p>{{ project().endDate }}</p>
+            </div>
+            <div class="detail-field">
+              <label>Participantes registrados</label>
+              <p>{{ project().participantCount }}</p>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </mat-tab>
+
+  <mat-tab label="Participantes">
+    <div style="padding: 24px 0;">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Participantes</mat-card-title>
+          <mat-card-subtitle>{{ project().participantCount }} participantes registrados</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-actions>
+          <a mat-flat-button color="primary" [routerLink]="['participants']">
+            <mat-icon>people</mat-icon>
+            Gestionar participantes
+          </a>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </mat-tab>
+
+  <mat-tab label="Plantilla">
+    <div style="padding: 24px 0;">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Editor de plantilla</mat-card-title>
+          <mat-card-subtitle>
+            @if (project().hasTemplate) {
+              Plantilla configurada correctamente
+            } @else {
+              No hay plantilla configurada
+            }
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-actions>
+          <a mat-flat-button [color]="project().hasTemplate ? 'primary' : 'warn'" [routerLink]="['template']">
+            <mat-icon>{{ project().hasTemplate ? 'edit_note' : 'add' }}</mat-icon>
+            {{ project().hasTemplate ? 'Editar plantilla' : 'Configurar plantilla' }}
+          </a>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </mat-tab>
+
+  <mat-tab label="Emisión">
+    <div style="padding: 24px 0;">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Emisión de certificados</mat-card-title>
+          <mat-card-subtitle>Solicita la generación de certificados para este proyecto</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-actions>
+          <a mat-button routerLink="/issuance-requests">
+            <mat-icon>list</mat-icon>
+            Ver solicitudes de emisión
+          </a>
+          <a mat-flat-button color="primary" [routerLink]="['issuance/new']">
+            <mat-icon>send</mat-icon>
+            Nueva solicitud
+          </a>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </mat-tab>
+
+</mat-tab-group>
