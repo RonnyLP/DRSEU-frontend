@@ -1,4 +1,4 @@
-import { Component, viewChild } from '@angular/core';
+import { Component, inject, viewChild } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule, MatSidenav } from '@angular/material/sidenav';
@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
+import { AuthService } from '../core/services/auth.service';
 
 interface NavItem {
   label: string;
@@ -26,6 +27,7 @@ interface NavItem {
   templateUrl: './shell.component.html',
 })
 export class ShellComponent {
+  readonly authService = inject(AuthService);
   readonly sidenav = viewChild<MatSidenav>('sidenav');
 
   readonly navItems: NavItem[] = [
@@ -37,5 +39,9 @@ export class ShellComponent {
 
   toggleSidenav(): void {
     this.sidenav()?.toggle();
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 }
