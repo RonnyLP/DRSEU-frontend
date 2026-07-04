@@ -1,70 +1,122 @@
 <div class="page-header">
   <div class="flex-row">
-    <a mat-icon-button [routerLink]="['/projects', projectId(), 'participants']" aria-label="Volver">
+    <a mat-icon-button [routerLink]="backLink()" aria-label="Volver">
       <mat-icon>arrow_back</mat-icon>
     </a>
-    <h1 class="page-title">Editar participante</h1>
+    <h1 class="page-title">{{ pageTitle() }}</h1>
   </div>
 </div>
 
 <mat-card style="max-width: 640px;">
   <mat-card-content>
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-section">
-
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Nombre completo</mat-label>
-        <input matInput formControlName="fullName">
-        <mat-icon matSuffix>person</mat-icon>
-        @if (form.controls.fullName.hasError('required') && form.controls.fullName.touched) {
-          <mat-error>El nombre es requerido</mat-error>
-        }
-      </mat-form-field>
-
-      <div class="form-row">
-        <mat-form-field appearance="outline">
-          <mat-label>DNI</mat-label>
-          <input matInput formControlName="dni" maxlength="8">
-          @if (form.controls.dni.hasError('pattern') && form.controls.dni.touched) {
-            <mat-error>DNI debe tener 8 dígitos</mat-error>
-          }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Correo electrónico</mat-label>
-          <input matInput formControlName="email" type="email">
-          @if (form.controls.email.hasError('email') && form.controls.email.touched) {
-            <mat-error>Correo inválido</mat-error>
-          }
-        </mat-form-field>
+    @if (loading()) {
+      <div class="preview-container" style="min-height: 180px;">
+        <mat-spinner diameter="36"></mat-spinner>
       </div>
+    } @else {
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-section">
 
-      <div class="form-row">
-        <mat-form-field appearance="outline">
-          <mat-label>Tipo de participación</mat-label>
-          <mat-select formControlName="participationType">
-            @for (type of participationTypes; track type) {
-              <mat-option [value]="type">{{ type }}</mat-option>
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Nombres</mat-label>
+            <input matInput formControlName="nombres" autocomplete="given-name">
+            <mat-icon matSuffix>person</mat-icon>
+            @if (form.controls.nombres.hasError('required') && form.controls.nombres.touched) {
+              <mat-error>Los nombres son requeridos</mat-error>
             }
-          </mat-select>
-        </mat-form-field>
+          </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Tipo de certificado</mat-label>
-          <mat-select formControlName="certificateTypeId">
-            <mat-option value="1">Certificado de Participación</mat-option>
-            <mat-option value="2">Certificado de Ponente</mat-option>
-            <mat-option value="3">Certificado de Organizador</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
+          <mat-form-field appearance="outline">
+            <mat-label>Apellidos</mat-label>
+            <input matInput formControlName="apellidos" autocomplete="family-name">
+            @if (form.controls.apellidos.hasError('required') && form.controls.apellidos.touched) {
+              <mat-error>Los apellidos son requeridos</mat-error>
+            }
+          </mat-form-field>
+        </div>
 
-      <div class="form-actions">
-        <a mat-button [routerLink]="['/projects', projectId(), 'participants']">Cancelar</a>
-        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">
-          <mat-icon>save</mat-icon>
-          Guardar cambios
-        </button>
-      </div>
-    </form>
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>DNI</mat-label>
+            <input matInput formControlName="dni" maxlength="12" autocomplete="off">
+            @if (form.controls.dni.hasError('required') && form.controls.dni.touched) {
+              <mat-error>El DNI es requerido</mat-error>
+            }
+            @if (form.controls.dni.hasError('pattern') && form.controls.dni.touched) {
+              <mat-error>DNI debe tener entre 8 y 12 dígitos</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Correo electrónico</mat-label>
+            <input matInput formControlName="email" type="email" autocomplete="email">
+            @if (form.controls.email.hasError('required') && form.controls.email.touched) {
+              <mat-error>El correo es requerido</mat-error>
+            }
+            @if (form.controls.email.hasError('email') && form.controls.email.touched) {
+              <mat-error>Correo inválido</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Celular</mat-label>
+            <input matInput formControlName="celular" maxlength="15" autocomplete="tel">
+            @if (form.controls.celular.hasError('pattern') && form.controls.celular.touched) {
+              <mat-error>Solo se permiten números</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Categoría</mat-label>
+            <mat-select formControlName="categoria">
+              @for (category of categoryOptions; track category.value) {
+                <mat-option [value]="category.value">{{ category.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        @if (isProjectMode()) {
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Tipo de participación</mat-label>
+              <mat-select formControlName="tipoParticipacion">
+                @for (type of participationTypes; track type) {
+                  <mat-option [value]="type">{{ participationLabel(type) }}</mat-option>
+                }
+              </mat-select>
+              @if (form.controls.tipoParticipacion.hasError('required') && form.controls.tipoParticipacion.touched) {
+                <mat-error>El tipo de participación es requerido</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Descripción</mat-label>
+              <textarea matInput formControlName="descripcionParticipante" rows="2"></textarea>
+            </mat-form-field>
+          </div>
+        }
+
+        @if (errorMessage()) {
+          <p role="alert" style="color: var(--mat-sys-error); font-size: 14px; margin: 0 0 8px;">
+            {{ errorMessage() }}
+          </p>
+        }
+
+        <div class="form-actions">
+          <a mat-button [routerLink]="backLink()">Cancelar</a>
+          <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || saving()">
+            @if (saving()) {
+              <mat-spinner diameter="20" style="display:inline-block; margin-right:8px;"></mat-spinner>
+            } @else {
+              <mat-icon>save</mat-icon>
+            }
+            Guardar
+          </button>
+        </div>
+      </form>
+    }
   </mat-card-content>
 </mat-card>

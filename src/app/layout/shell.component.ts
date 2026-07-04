@@ -32,6 +32,7 @@ export class ShellComponent {
 
   readonly navItems: NavItem[] = [
     { label: 'Proyectos', icon: 'folder_open', route: '/projects' },
+    { label: 'Participantes', icon: 'groups', route: '/participants' },
     { label: 'Solicitudes de Emisión', icon: 'send', route: '/issuance-requests' },
     { label: 'Certificados', icon: 'workspace_premium', route: '/certificates' },
     { label: 'Tipos de Certificado', icon: 'category', route: '/certificate-types' },

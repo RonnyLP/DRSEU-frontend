@@ -35,7 +35,11 @@ export const routes: Routes = [
       { path: 'projects/:id/edit', component: ProjectEditComponent },
 
       // Participantes
+      { path: 'participants', component: ParticipantListComponent },
+      { path: 'participants/new', component: ParticipantEditComponent },
+      { path: 'participants/:pid/edit', component: ParticipantEditComponent },
       { path: 'projects/:id/participants', component: ParticipantListComponent },
+      { path: 'projects/:id/participants/new', component: ParticipantEditComponent },
       { path: 'projects/:id/participants/:pid/edit', component: ParticipantEditComponent },
 
       // Editor de plantilla)
