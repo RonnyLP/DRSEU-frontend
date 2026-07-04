@@ -1,6 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,35 +11,66 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ProjectService } from '../../../core/services/project.service';
+import {
+  ESTADOS_PROYECTO,
+  Proyecto,
+  estadoBadgeClass,
+  estadoLabel,
+} from '../../../shared/models/proyecto.model';
 
-interface Project {
-  id: string;
-  name: string;
-  status: 'draft' | 'active' | 'closed';
-  startDate: string;
-  endDate: string;
-  participantCount: number;
-}
-
+/** HU-06: listar proyectos/eventos. */
 @Component({
   selector: 'app-project-list',
-  imports: [RouterLink, ReactiveFormsModule, MatTableModule, MatPaginatorModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule, MatIconModule, MatCardModule, MatTooltipModule],
+  imports: [RouterLink, ReactiveFormsModule, MatTableModule, MatPaginatorModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule, MatIconModule, MatCardModule, MatTooltipModule, MatProgressSpinnerModule],
   templateUrl: './project-list.component.html',
 })
-export class ProjectListComponent {
-  readonly searchControl = new FormControl('');
-  readonly statusControl = new FormControl('');
+export class ProjectListComponent implements OnInit {
+  private projectService = inject(ProjectService);
 
-  readonly displayedColumns = ['name', 'status', 'startDate', 'endDate', 'participants', 'actions'];
+  readonly searchControl = new FormControl('', { nonNullable: true });
+  readonly statusControl = new FormControl('', { nonNullable: true });
 
-  readonly projects = signal<Project[]>([
-    { id: '1', name: 'Seminario de Investigación 2025', status: 'active', startDate: '2025-03-01', endDate: '2025-07-31', participantCount: 48 },
-    { id: '2', name: 'Taller de Innovación Tecnológica', status: 'active', startDate: '2025-04-01', endDate: '2025-09-30', participantCount: 32 },
-    { id: '3', name: 'Congreso Estudiantil UNTELS 2024', status: 'closed', startDate: '2024-11-01', endDate: '2024-11-30', participantCount: 120 },
-    { id: '4', name: 'Jornada de Emprendimiento', status: 'draft', startDate: '2026-01-01', endDate: '2026-06-30', participantCount: 0 },
-  ]);
+  readonly estados = ESTADOS_PROYECTO;
+  readonly estadoLabel = estadoLabel;
+  readonly estadoBadgeClass = estadoBadgeClass;
 
-  statusLabel(status: string): string {
-    return ({ draft: 'Borrador', active: 'Activo', closed: 'Cerrado' } as Record<string, string>)[status] ?? status;
+  readonly displayedColumns = ['titulo', 'estado', 'numeroRegistro', 'fechaAprobacion', 'integrantes', 'actions'];
+
+  readonly proyectos = signal<Proyecto[]>([]);
+  readonly cargando = signal(true);
+  readonly error = signal<string | null>(null);
+
+  private readonly filtroTexto = toSignal(this.searchControl.valueChanges, { initialValue: '' });
+  private readonly filtroEstado = toSignal(this.statusControl.valueChanges, { initialValue: '' });
+
+  readonly proyectosFiltrados = computed(() => {
+    const q = this.filtroTexto().trim().toLowerCase();
+    const estado = this.filtroEstado();
+    return this.proyectos().filter(
+      (p) =>
+        (!q || p.titulo.toLowerCase().includes(q)) &&
+        (!estado || p.estado === estado),
+    );
+  });
+
+  ngOnInit(): void {
+    this.cargar();
+  }
+
+  cargar(): void {
+    this.cargando.set(true);
+    this.error.set(null);
+    this.projectService.list().subscribe({
+      next: (lista) => {
+        this.proyectos.set(lista);
+        this.cargando.set(false);
+      },
+      error: () => {
+        this.error.set('No se pudo cargar la lista de proyectos. Verifica que el backend esté activo.');
+        this.cargando.set(false);
+      },
+    });
   }
 }
