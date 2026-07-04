@@ -1,4 +1,4 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -7,38 +7,50 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
+import { CertificatesService } from '../../../core/services/certificates.service';
+import { VerificacionCertificado } from '../../../shared/models/certificate.model';
 
 type VerifyState = 'idle' | 'loading' | 'valid' | 'invalid';
 
 @Component({
   selector: 'app-verify',
-  imports: [ReactiveFormsModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatDividerModule],
+  imports: [
+    ReactiveFormsModule,
+    MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatDividerModule,
+  ],
   templateUrl: './verify.component.html',
 })
 export class VerifyComponent {
-  readonly route = inject(ActivatedRoute);
+  private readonly service = inject(CertificatesService);
+  private readonly route = inject(ActivatedRoute);
 
   readonly codeControl = new FormControl(
     this.route.snapshot.paramMap.get('code') ?? '',
-    [Validators.required, Validators.minLength(6)]
+    [Validators.required, Validators.minLength(3)],
   );
 
   readonly state = signal<VerifyState>('idle');
+  readonly result = signal<VerificacionCertificado | null>(null);
 
-  readonly result = signal<{ participantName: string; projectName: string; type: string; issuedAt: string } | null>(null);
+  constructor() {
+    const code = this.route.snapshot.paramMap.get('code');
+    if (code) this.onVerify();
+  }
 
   onVerify(): void {
     if (this.codeControl.invalid) return;
     this.state.set('loading');
-    // TODO: call public verify API
-    setTimeout(() => {
-      this.state.set('valid');
-      this.result.set({
-        participantName: 'Ana García López',
-        projectName: 'Seminario de Investigación 2025',
-        type: 'Certificado de Participación',
-        issuedAt: '2025-08-01',
-      });
-    }, 800);
+    this.result.set(null);
+    this.service.verify(this.codeControl.value!).subscribe({
+      next: (res) => {
+        if (res.valido) {
+          this.state.set('valid');
+          this.result.set(res);
+        } else {
+          this.state.set('invalid');
+        }
+      },
+      error: () => this.state.set('invalid'),
+    });
   }
 }

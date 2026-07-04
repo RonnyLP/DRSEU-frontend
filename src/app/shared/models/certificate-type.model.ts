@@ -1,5 +1,14 @@
 export interface CertificateType {
-  id: string;
-  name: string;
-  description: string;
+  idTipoCertificado: number;
+  nombre: string;
+  descripcion: string;
+  esPredeterminado: boolean;
+  activo: boolean;
+  createdAt: string;
+}
+
+export interface CertificateTypeInsert {
+  nombre: string;
+  descripcion: string;
+  esPredeterminado: boolean;
 }
