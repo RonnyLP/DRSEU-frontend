@@ -5,7 +5,7 @@
         <mat-icon>verified</mat-icon>
         <div>
           <mat-card-title>Verificar certificado</mat-card-title>
-          <mat-card-subtitle>Ingresa el folio del certificado para verificar su autenticidad</mat-card-subtitle>
+          <mat-card-subtitle>Ingresa el código del certificado para verificar su autenticidad</mat-card-subtitle>
         </div>
       </div>
     </mat-card-header>
@@ -20,11 +20,7 @@
         </mat-form-field>
         <button mat-flat-button color="primary" style="height: 56px; margin-bottom: 22px;"
                 (click)="onVerify()" [disabled]="codeControl.invalid || state() === 'loading'">
-          @if (state() === 'loading') {
-            Verificando...
-          } @else {
-            Verificar
-          }
+          @if (state() === 'loading') { Verificando... } @else { Verificar }
         </button>
       </div>
 
@@ -34,25 +30,29 @@
           <mat-icon style="color: #2e7d32; font-size: 32px; width: 32px; height: 32px;">check_circle</mat-icon>
           <div>
             <p style="margin: 0; font-weight: 600; color: #2e7d32;">Certificado válido</p>
-            <p style="margin: 0; font-size: 12px; color: #757575;">Este certificado es auténtico y fue emitido por UNTELS</p>
+            <p style="margin: 0; font-size: 12px; color: #757575;">Emitido auténticamente por UNTELS</p>
           </div>
         </div>
         <div class="detail-grid">
           <div class="detail-field">
             <label>Participante</label>
-            <p>{{ cert.participantName }}</p>
+            <p>{{ cert.participanteNombre }}</p>
           </div>
           <div class="detail-field">
             <label>Proyecto</label>
-            <p>{{ cert.projectName }}</p>
+            <p>{{ cert.proyectoTitulo }}</p>
           </div>
           <div class="detail-field">
             <label>Tipo de certificado</label>
-            <p>{{ cert.type }}</p>
+            <p>{{ cert.tipoCertificadoNombre }}</p>
+          </div>
+          <div class="detail-field">
+            <label>Tipo de participación</label>
+            <p>{{ cert.tipoParticipacion ?? '—' }}</p>
           </div>
           <div class="detail-field">
             <label>Fecha de emisión</label>
-            <p>{{ cert.issuedAt }}</p>
+            <p>{{ cert.fechaEmision ?? '—' }}</p>
           </div>
         </div>
       }
