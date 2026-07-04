@@ -1,5 +1,5 @@
 import { Component, inject, viewChild } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule, MatSidenav } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
@@ -27,7 +27,9 @@ interface NavItem {
   templateUrl: './shell.component.html',
 })
 export class ShellComponent {
-  readonly authService = inject(AuthService);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+
   readonly sidenav = viewChild<MatSidenav>('sidenav');
 
   readonly navItems: NavItem[] = [
@@ -41,7 +43,8 @@ export class ShellComponent {
     this.sidenav()?.toggle();
   }
 
-  logout(): void {
+  cerrarSesion(): void {
     this.authService.logout();
+    this.router.navigateByUrl('/auth/login');
   }
 }
