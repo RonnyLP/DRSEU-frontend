@@ -1,11 +1,9 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { tap } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
-export interface UserProfile {
-  id: number;
+export interface SesionUsuario {
   username: string;
   rol: string;
 }
@@ -16,61 +14,37 @@ interface LoginResponse {
   rol: string;
 }
 
-const API = `${environment.apiUrl}/auth`;
 const TOKEN_KEY = 'drseu_token';
+const USER_KEY = 'drseu_user';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private http = inject(HttpClient);
-  private router = inject(Router);
+  private readonly http = inject(HttpClient);
+  private readonly baseUrl = `${environment.apiUrl}/auth`;
 
-  readonly currentUser = signal<UserProfile | null>(null);
   readonly token = signal<string | null>(localStorage.getItem(TOKEN_KEY));
+  readonly currentUser = signal<SesionUsuario | null>(this.readStoredUser());
 
-  isAuthenticated = () => this.token() !== null;
-
-  init(): void {
-    if (this.token()) {
-      this.http.get<UserProfile>(`${API}/me`).subscribe({
-        next: (user) => this.currentUser.set(user),
-        error: () => this.clearSession(),
-      });
-    }
-  }
-
-  login(username: string, password: string) {
-    return this.http.post<LoginResponse>(`${API}/login`, { username, password }).pipe(
-      tap((res) => {
-        localStorage.setItem(TOKEN_KEY, res.token);
-        this.token.set(res.token);
-        this.currentUser.set({ id: 0, username: res.username, rol: res.rol });
+  login(username: string, password: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.baseUrl}/login`, { username, password }).pipe(
+      tap((response) => {
+        localStorage.setItem(TOKEN_KEY, response.token);
+        localStorage.setItem(USER_KEY, JSON.stringify({ username: response.username, rol: response.rol }));
+        this.token.set(response.token);
+        this.currentUser.set({ username: response.username, rol: response.rol });
       }),
     );
   }
 
   logout(): void {
-    this.clearSession();
-    this.router.navigate(['/auth/login']);
-  }
-
-  recoverPassword(email: string) {
-    return this.http.post<void>(`${API}/recover-password`, { email });
-  }
-
-  resetPassword(token: string, newPassword: string) {
-    return this.http.post<void>(`${API}/reset-password`, { token, newPassword });
-  }
-
-  changePassword(currentPassword: string, newPassword: string) {
-    return this.http.post<void>(`${API}/change-password`, {
-      passwordActual: currentPassword,
-      passwordNueva: newPassword,
-    });
-  }
-
-  private clearSession(): void {
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
     this.token.set(null);
     this.currentUser.set(null);
+  }
+
+  private readStoredUser(): SesionUsuario | null {
+    const raw = localStorage.getItem(USER_KEY);
+    return raw ? JSON.parse(raw) : null;
   }
 }
