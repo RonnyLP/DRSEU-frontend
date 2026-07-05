@@ -11,63 +11,105 @@
     <div class="filter-row">
       <mat-form-field appearance="outline" class="search-field">
         <mat-label>Buscar por nombre</mat-label>
-        <input matInput [formControl]="searchControl" placeholder="Nombre del proyecto...">
+        <input
+          matInput
+          placeholder="Nombre del proyecto..."
+          [value]="tituloFilter()"
+          (input)="onTituloInput($event)"
+          [matAutocomplete]="auto"
+        />
         <mat-icon matSuffix>search</mat-icon>
+        <mat-autocomplete #auto="matAutocomplete">
+          @for (sugerencia of sugerenciasResource.value() ?? []; track sugerencia) {
+            <mat-option [value]="sugerencia" (onSelectionChange)="tituloFilter.set(sugerencia)">
+              {{ sugerencia }}
+            </mat-option>
+          }
+        </mat-autocomplete>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Desde</mat-label>
+        <input matInput [matDatepicker]="pickerDesde" [value]="fechaDesde()" (dateChange)="fechaDesde.set($event.value)" />
+        <mat-datepicker-toggle matSuffix [for]="pickerDesde"></mat-datepicker-toggle>
+        <mat-datepicker #pickerDesde></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Hasta</mat-label>
+        <input matInput [matDatepicker]="pickerHasta" [value]="fechaHasta()" (dateChange)="fechaHasta.set($event.value)" />
+        <mat-datepicker-toggle matSuffix [for]="pickerHasta"></mat-datepicker-toggle>
+        <mat-datepicker #pickerHasta></mat-datepicker>
       </mat-form-field>
 
       <mat-form-field appearance="outline">
         <mat-label>Estado</mat-label>
-        <mat-select [formControl]="statusControl">
+        <mat-select [value]="estadoFilter()" (selectionChange)="estadoFilter.set($event.value)">
           <mat-option value="">Todos</mat-option>
-          <mat-option value="draft">Borrador</mat-option>
-          <mat-option value="active">Activo</mat-option>
-          <mat-option value="closed">Cerrado</mat-option>
+          @for (estado of estados; track estado) {
+            <mat-option [value]="estado">{{ estadoLabel(estado) }}</mat-option>
+          }
         </mat-select>
       </mat-form-field>
+    </div>
+
+    <div class="form-actions">
+      <button mat-stroked-button type="button" (click)="limpiarFiltros()">
+        <mat-icon>filter_alt_off</mat-icon>
+        Limpiar filtros
+      </button>
+      <button mat-flat-button color="primary" type="button" [disabled]="descargando()" (click)="descargarReporte()">
+        @if (descargando()) {
+          <mat-spinner diameter="18"></mat-spinner>
+        } @else {
+          <mat-icon>download</mat-icon>
+        }
+        Descargar reporte
+      </button>
     </div>
   </mat-card-content>
 </mat-card>
 
 <mat-card>
   <mat-card-content>
-    <table mat-table [dataSource]="projects()" class="full-width">
+    <table mat-table [dataSource]="resultadosPaginados()" class="full-width">
 
-      <ng-container matColumnDef="name">
+      <ng-container matColumnDef="titulo">
         <th mat-header-cell *matHeaderCellDef>Nombre</th>
         <td mat-cell *matCellDef="let row">
-          <a [routerLink]="['/projects', row.id]" style="font-weight: 500;">{{ row.name }}</a>
+          <a [routerLink]="['/projects', row.idProyecto]" style="font-weight: 500;">{{ row.titulo }}</a>
         </td>
       </ng-container>
 
-      <ng-container matColumnDef="status">
+      <ng-container matColumnDef="estado">
         <th mat-header-cell *matHeaderCellDef>Estado</th>
         <td mat-cell *matCellDef="let row">
-          <span [class]="'status-badge status-' + row.status">{{ statusLabel(row.status) }}</span>
+          <span [class]="'status-badge ' + statusClass(row.estado)">{{ estadoLabel(row.estado) }}</span>
         </td>
       </ng-container>
 
-      <ng-container matColumnDef="startDate">
-        <th mat-header-cell *matHeaderCellDef>Inicio</th>
-        <td mat-cell *matCellDef="let row">{{ row.startDate }}</td>
+      <ng-container matColumnDef="fechaAprobacion">
+        <th mat-header-cell *matHeaderCellDef>Fecha de aprobación</th>
+        <td mat-cell *matCellDef="let row">{{ row.fechaAprobacion ?? '—' }}</td>
       </ng-container>
 
-      <ng-container matColumnDef="endDate">
-        <th mat-header-cell *matHeaderCellDef>Fin</th>
-        <td mat-cell *matCellDef="let row">{{ row.endDate }}</td>
+      <ng-container matColumnDef="tipoProyecto">
+        <th mat-header-cell *matHeaderCellDef>Tipo</th>
+        <td mat-cell *matCellDef="let row">{{ row.tipoProyectoNombre ?? '—' }}</td>
       </ng-container>
 
-      <ng-container matColumnDef="participants">
-        <th mat-header-cell *matHeaderCellDef>Participantes</th>
-        <td mat-cell *matCellDef="let row">{{ row.participantCount }}</td>
+      <ng-container matColumnDef="creadoPor">
+        <th mat-header-cell *matHeaderCellDef>Creado por</th>
+        <td mat-cell *matCellDef="let row">{{ row.creadoPorUsername ?? '—' }}</td>
       </ng-container>
 
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let row" class="actions-cell">
-          <a mat-icon-button [routerLink]="['/projects', row.id]" matTooltip="Ver detalle">
+          <a mat-icon-button [routerLink]="['/projects', row.idProyecto]" matTooltip="Ver detalle">
             <mat-icon>visibility</mat-icon>
           </a>
-          <a mat-icon-button [routerLink]="['/projects', row.id, 'edit']" matTooltip="Editar">
+          <a mat-icon-button [routerLink]="['/projects', row.idProyecto, 'edit']" matTooltip="Editar">
             <mat-icon>edit</mat-icon>
           </a>
         </td>
@@ -77,11 +119,24 @@
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       <tr class="mat-row" *matNoDataRow>
         <td class="mat-cell" [attr.colspan]="displayedColumns.length" style="padding: 24px; text-align: center; color: #757575;">
-          No se encontraron proyectos
+          @if (resultadosResource.isLoading()) {
+            Buscando proyectos...
+          } @else if (resultadosResource.error()) {
+            Ocurrió un error al buscar proyectos.
+          } @else {
+            No se encontraron proyectos
+          }
         </td>
       </tr>
     </table>
 
-    <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons></mat-paginator>
+    <mat-paginator
+      [length]="resultados().length"
+      [pageIndex]="pageIndex()"
+      [pageSize]="pageSize()"
+      [pageSizeOptions]="pageSizeOptions"
+      (page)="onPageChange($event)"
+      showFirstLastButtons
+    ></mat-paginator>
   </mat-card-content>
 </mat-card>

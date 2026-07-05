@@ -6,45 +6,44 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
-  imports: [
-    RouterLink, ReactiveFormsModule,
-    MatCardModule, MatFormFieldModule, MatInputModule,
-    MatButtonModule, MatIconModule, MatProgressSpinnerModule,
-  ],
+  imports: [RouterLink, ReactiveFormsModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule],
   templateUrl: './login.component.html',
 })
 export class LoginComponent {
-  private fb = inject(FormBuilder);
-  private authService = inject(AuthService);
-  private router = inject(Router);
+  private readonly fb = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
-  hidePassword = signal(true);
-  loading = signal(false);
-  errorMessage = signal('');
+  readonly hidePassword = signal(true);
+  readonly cargando = signal(false);
+  readonly errorMessage = signal('');
 
-  form = this.fb.nonNullable.group({
-    username: ['', Validators.required],
+  readonly form = this.fb.nonNullable.group({
+    username: ['', [Validators.required]],
     password: ['', [Validators.required, Validators.minLength(6)]],
   });
 
   onSubmit(): void {
-    if (this.form.invalid) return;
-
-    this.loading.set(true);
-    this.errorMessage.set('');
+    if (this.form.invalid) {
+      return;
+    }
 
     const { username, password } = this.form.getRawValue();
+    this.errorMessage.set('');
+    this.cargando.set(true);
 
     this.authService.login(username, password).subscribe({
-      next: () => this.router.navigate(['/projects']),
+      next: () => {
+        this.cargando.set(false);
+        this.router.navigateByUrl('/projects');
+      },
       error: () => {
-        this.errorMessage.set('Correo o contraseña incorrectos.');
-        this.loading.set(false);
+        this.cargando.set(false);
+        this.errorMessage.set('Usuario o contraseña incorrectos');
       },
     });
   }

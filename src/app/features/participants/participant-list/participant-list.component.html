@@ -1,83 +1,157 @@
 <div class="page-header">
   <div class="flex-row">
-    <a mat-icon-button [routerLink]="['/projects', projectId()]" aria-label="Volver al proyecto">
-      <mat-icon>arrow_back</mat-icon>
-    </a>
-    <h1 class="page-title">Participantes</h1>
+    @if (isProjectMode()) {
+      <a mat-icon-button [routerLink]="['/projects', projectId()]" aria-label="Volver al proyecto">
+        <mat-icon>arrow_back</mat-icon>
+      </a>
+    }
+    <h1 class="page-title">
+      @if (isProjectMode()) {
+        Participantes del proyecto
+      } @else {
+        Participantes
+      }
+    </h1>
   </div>
   <div class="flex-row gap-8">
-    <button mat-button>
-      <mat-icon>upload</mat-icon>
-      Carga masiva
+    <button mat-button type="button" (click)="loadParticipants()" [disabled]="loading()">
+      <mat-icon>refresh</mat-icon>
+      Actualizar
     </button>
-    <button mat-flat-button color="primary">
+    <a mat-flat-button color="primary" [routerLink]="newParticipantLink()">
       <mat-icon>person_add</mat-icon>
       Añadir participante
-    </button>
+    </a>
   </div>
 </div>
 
 <mat-card class="filter-card">
   <mat-card-content>
-    <mat-form-field appearance="outline" class="search-field">
-      <mat-label>Buscar participante</mat-label>
-      <input matInput [formControl]="searchControl" placeholder="Nombre, DNI o correo...">
-      <mat-icon matSuffix>search</mat-icon>
-    </mat-form-field>
+    <div class="flex-row gap-8" style="flex-wrap: wrap; align-items: center;">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Buscar participante</mat-label>
+        <input matInput [formControl]="searchControl" placeholder="Nombre, DNI o correo...">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Categoría</mat-label>
+        <mat-select [formControl]="categoryControl">
+          <mat-option [value]="''">Todas</mat-option>
+          @for (category of categories; track category) {
+            <mat-option [value]="category">{{ categoryLabel(category) }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      @if (!isProjectMode()) {
+        <mat-checkbox
+          [checked]="showInactive()"
+          (change)="toggleInactive($event.checked)">
+          Mostrar inactivos
+        </mat-checkbox>
+      }
+
+      <span class="text-secondary" style="margin-left: auto;">
+        {{ resultCount() }} {{ resultCount() === 1 ? 'participante' : 'participantes' }}
+      </span>
+    </div>
   </mat-card-content>
 </mat-card>
 
+@if (errorMessage()) {
+  <p role="alert" style="color: var(--mat-sys-error); margin: 0 0 16px;">
+    {{ errorMessage() }}
+  </p>
+}
+
 <mat-card>
   <mat-card-content>
-    <table mat-table [dataSource]="participants()" class="full-width">
+    @if (loading()) {
+      <div class="preview-container" style="min-height: 160px;">
+        <mat-spinner diameter="36"></mat-spinner>
+      </div>
+    } @else if (filteredParticipants().length === 0) {
+      <div class="preview-container" style="min-height: 160px;">
+        <mat-icon style="font-size: 40px; width: 40px; height: 40px;">person_search</mat-icon>
+        <p class="text-secondary">No hay participantes para mostrar.</p>
+      </div>
+    } @else {
+      <table mat-table [dataSource]="filteredParticipants()" class="full-width">
 
-      <ng-container matColumnDef="select">
-        <th mat-header-cell *matHeaderCellDef>
-          <mat-checkbox aria-label="Seleccionar todos"></mat-checkbox>
-        </th>
-        <td mat-cell *matCellDef="let row">
-          <mat-checkbox [aria-label]="'Seleccionar ' + row.fullName"></mat-checkbox>
-        </td>
-      </ng-container>
+        <ng-container matColumnDef="nombreCompleto">
+          <th mat-header-cell *matHeaderCellDef>Nombre completo</th>
+          <td mat-cell *matCellDef="let row" style="font-weight: 500;">{{ row.nombreCompleto }}</td>
+        </ng-container>
 
-      <ng-container matColumnDef="fullName">
-        <th mat-header-cell *matHeaderCellDef>Nombre completo</th>
-        <td mat-cell *matCellDef="let row" style="font-weight: 500;">{{ row.fullName }}</td>
-      </ng-container>
+        <ng-container matColumnDef="dni">
+          <th mat-header-cell *matHeaderCellDef>DNI</th>
+          <td mat-cell *matCellDef="let row">{{ row.dni }}</td>
+        </ng-container>
 
-      <ng-container matColumnDef="dni">
-        <th mat-header-cell *matHeaderCellDef>DNI</th>
-        <td mat-cell *matCellDef="let row">{{ row.dni }}</td>
-      </ng-container>
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef>Correo</th>
+          <td mat-cell *matCellDef="let row">{{ row.email }}</td>
+        </ng-container>
 
-      <ng-container matColumnDef="email">
-        <th mat-header-cell *matHeaderCellDef>Correo</th>
-        <td mat-cell *matCellDef="let row">{{ row.email }}</td>
-      </ng-container>
+        <ng-container matColumnDef="categoria">
+          <th mat-header-cell *matHeaderCellDef>Categoría</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="status-badge status-queued">{{ categoryLabel(row.categoria) }}</span>
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="participationType">
-        <th mat-header-cell *matHeaderCellDef>Tipo de participación</th>
-        <td mat-cell *matCellDef="let row">
-          <span class="status-badge status-active" style="background: #e3f2fd; color: #0d47a1;">{{ row.participationType }}</span>
-        </td>
-      </ng-container>
+        <ng-container matColumnDef="tipoParticipacion">
+          <th mat-header-cell *matHeaderCellDef>Tipo de participación</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="status-badge status-active" style="background: #e3f2fd; color: #0d47a1;">
+              {{ participationType(row) }}
+            </span>
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let row" class="actions-cell">
-          <a mat-icon-button [routerLink]="[row.id, 'edit']" matTooltip="Editar">
-            <mat-icon>edit</mat-icon>
-          </a>
-          <button mat-icon-button matTooltip="Eliminar" style="color: #b71c1c;">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </td>
-      </ng-container>
+        <ng-container matColumnDef="activo">
+          <th mat-header-cell *matHeaderCellDef>Estado</th>
+          <td mat-cell *matCellDef="let row">
+            <span [class]="'status-badge ' + (row.activo ? 'status-active' : 'status-closed')">
+              {{ row.activo ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+        </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let row" class="actions-cell">
+            <a mat-icon-button [routerLink]="editParticipantLink(row)" matTooltip="Editar">
+              <mat-icon>edit</mat-icon>
+            </a>
+            @if (!isProjectMode() && !row.activo) {
+              <button
+                mat-icon-button
+                type="button"
+                matTooltip="Reactivar"
+                style="color: #1b5e20;"
+                (click)="activateParticipant(row)">
+                <mat-icon>restart_alt</mat-icon>
+              </button>
+            } @else {
+              <button
+                mat-icon-button
+                type="button"
+                [matTooltip]="isProjectMode() ? 'Retirar del proyecto' : 'Desactivar'"
+                style="color: #b71c1c;"
+                (click)="deleteParticipant(row)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
+          </td>
+        </ng-container>
 
-    <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons></mat-paginator>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
+      </table>
+
+      <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons></mat-paginator>
+    }
   </mat-card-content>
 </mat-card>

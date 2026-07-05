@@ -5,18 +5,32 @@
     </a>
     <span>Vista previa — Certificado</span>
   </div>
-  <button mat-stroked-button style="color: white; border-color: white;">
+  <button mat-stroked-button style="color: white; border-color: white;"
+          (click)="download()" [disabled]="error()">
     <mat-icon>download</mat-icon>
     Descargar PDF
   </button>
 </mat-toolbar>
 
 <div class="preview-container">
-  <div class="preview-frame">
-    <div style="text-align: center; color: #9e9e9e;">
-      <mat-icon style="font-size: 64px; width: 64px; height: 64px; color: #bdbdbd;">picture_as_pdf</mat-icon>
-      <p>Vista previa del certificado PDF</p>
-      <p style="font-size: 12px;">(Requiere integración con pdfjs-dist)</p>
+  @if (loading()) {
+    <div style="text-align: center; padding: 48px; color: #757575;">
+      <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #bdbdbd;">hourglass_top</mat-icon>
+      <p>Cargando PDF...</p>
     </div>
-  </div>
+  } @else if (error()) {
+    <div style="text-align: center; padding: 48px; color: #b71c1c;">
+      <mat-icon style="font-size: 48px; width: 48px; height: 48px;">error_outline</mat-icon>
+      <p>No hay PDF disponible para este certificado.</p>
+      <a mat-button [routerLink]="['/certificates', certId()]">Volver a la ficha</a>
+    </div>
+  } @else {
+    <div class="preview-frame" style="height: calc(100vh - 64px); padding: 0;">
+      <iframe
+        [src]="safePdfUrl()"
+        style="width: 100%; height: 100%; border: none;"
+        title="Vista previa del certificado PDF">
+      </iframe>
+    </div>
+  }
 </div>

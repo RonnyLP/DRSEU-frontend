@@ -7,54 +7,57 @@
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-section">
 
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Nombre del proyecto</mat-label>
-        <input matInput formControlName="name" placeholder="Ej. Seminario de Investigación 2026">
-        @if (form.controls.name.hasError('required') && form.controls.name.touched) {
-          <mat-error>El nombre es requerido</mat-error>
+        <mat-label>Título del proyecto</mat-label>
+        <input matInput formControlName="titulo" placeholder="Ej. Seminario de Investigación 2026">
+        @if (form.controls.titulo.hasError('required') && form.controls.titulo.touched) {
+          <mat-error>El título es requerido</mat-error>
+        }
+        @if (form.controls.titulo.hasError('minlength') && form.controls.titulo.touched) {
+          <mat-error>El título debe tener al menos 3 caracteres</mat-error>
         }
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Descripción</mat-label>
-        <textarea matInput formControlName="description" rows="3"
+        <textarea matInput formControlName="descripcion" rows="3"
                   placeholder="Descripción del proyecto..."></textarea>
       </mat-form-field>
 
       <div class="form-row">
         <mat-form-field appearance="outline">
-          <mat-label>Fecha de inicio</mat-label>
-          <input matInput [matDatepicker]="startPicker" formControlName="startDate">
-          <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
-          <mat-datepicker #startPicker></mat-datepicker>
-          @if (form.controls.startDate.hasError('required') && form.controls.startDate.touched) {
-            <mat-error>La fecha de inicio es requerida</mat-error>
-          }
+          <mat-label>N° de registro</mat-label>
+          <input matInput formControlName="numeroRegistro" placeholder="Ej. REG-2026-001">
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Fecha de fin</mat-label>
-          <input matInput [matDatepicker]="endPicker" formControlName="endDate">
-          <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
-          <mat-datepicker #endPicker></mat-datepicker>
-          @if (form.controls.endDate.hasError('required') && form.controls.endDate.touched) {
-            <mat-error>La fecha de fin es requerida</mat-error>
-          }
+          <mat-label>Documento de aprobación</mat-label>
+          <input matInput formControlName="documentoAprobacion" placeholder="Ej. RD N° 123-2026">
         </mat-form-field>
       </div>
 
-      <mat-form-field appearance="outline" style="max-width: 240px;">
-        <mat-label>Estado inicial</mat-label>
-        <mat-select formControlName="status">
-          <mat-option value="draft">Borrador</mat-option>
-          <mat-option value="active">Activo</mat-option>
-        </mat-select>
-      </mat-form-field>
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Fecha de aprobación</mat-label>
+          <input matInput [matDatepicker]="fechaPicker" formControlName="fechaAprobacion">
+          <mat-datepicker-toggle matIconSuffix [for]="fechaPicker"></mat-datepicker-toggle>
+          <mat-datepicker #fechaPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" style="max-width: 240px;">
+          <mat-label>Estado inicial</mat-label>
+          <mat-select formControlName="estado">
+            @for (estado of estados; track estado.value) {
+              <mat-option [value]="estado.value">{{ estado.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
 
       <div class="form-actions">
         <a mat-button routerLink="/projects">Cancelar</a>
-        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">
+        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || guardando()">
           <mat-icon>save</mat-icon>
-          Crear proyecto
+          {{ guardando() ? 'Guardando...' : 'Crear proyecto' }}
         </button>
       </div>
     </form>
