@@ -17,6 +17,46 @@
         }
       </mat-form-field>
 
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Tipo de evento</mat-label>
+          <input matInput formControlName="tipoEvento" placeholder="Ej. Seminario, Taller, Congreso">
+          @if (form.controls.tipoEvento.hasError('required') && form.controls.tipoEvento.touched) {
+            <mat-error>El tipo de evento es requerido</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Modalidad</mat-label>
+          <input matInput formControlName="modalidad" placeholder="Ej. Presencial, Virtual, Híbrido">
+          @if (form.controls.modalidad.hasError('required') && form.controls.modalidad.touched) {
+            <mat-error>La modalidad es requerida</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Fecha de inicio</mat-label>
+          <input matInput [matDatepicker]="fechaInicioPicker" formControlName="fechaInicio">
+          <mat-datepicker-toggle matIconSuffix [for]="fechaInicioPicker"></mat-datepicker-toggle>
+          <mat-datepicker #fechaInicioPicker></mat-datepicker>
+          @if (form.controls.fechaInicio.hasError('required') && form.controls.fechaInicio.touched) {
+            <mat-error>La fecha de inicio es requerida</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Fecha de fin</mat-label>
+          <input matInput [matDatepicker]="fechaFinPicker" formControlName="fechaFin">
+          <mat-datepicker-toggle matIconSuffix [for]="fechaFinPicker"></mat-datepicker-toggle>
+          <mat-datepicker #fechaFinPicker></mat-datepicker>
+          @if (form.controls.fechaFin.hasError('required') && form.controls.fechaFin.touched) {
+            <mat-error>La fecha de fin es requerida</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Descripción</mat-label>
         <textarea matInput formControlName="descripcion" rows="3"
@@ -38,9 +78,9 @@
       <div class="form-row">
         <mat-form-field appearance="outline">
           <mat-label>Fecha de aprobación</mat-label>
-          <input matInput [matDatepicker]="fechaPicker" formControlName="fechaAprobacion">
-          <mat-datepicker-toggle matIconSuffix [for]="fechaPicker"></mat-datepicker-toggle>
-          <mat-datepicker #fechaPicker></mat-datepicker>
+          <input matInput [matDatepicker]="fechaAprobPicker" formControlName="fechaAprobacion">
+          <mat-datepicker-toggle matIconSuffix [for]="fechaAprobPicker"></mat-datepicker-toggle>
+          <mat-datepicker #fechaAprobPicker></mat-datepicker>
         </mat-form-field>
 
         <mat-form-field appearance="outline" style="max-width: 240px;">

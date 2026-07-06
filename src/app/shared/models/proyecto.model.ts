@@ -3,7 +3,7 @@
  * backend certificadosDRSU (`/api/proyectos`).
  */
 
-export type EstadoProyecto = 'BORRADOR' | 'PENDIENTE' | 'APROBADO' | 'RECHAZADO' | 'ANULADO';
+export type EstadoProyecto = 'BORRADOR' | 'PENDIENTE' | 'EN_PROCESO' | 'APROBADO' | 'RECHAZADO' | 'ANULADO';
 
 /** Elemento de `GET /api/proyectos/lista` (ProyectoDto). */
 export interface Proyecto {
@@ -20,6 +20,10 @@ export interface Proyecto {
 /** Cuerpo/respuesta de `GET|PUT /api/proyectos/{id}` y `POST /nuevo` (ProyectoInsertDto). */
 export interface ProyectoDetalle {
   titulo: string;
+  tipoEvento: string | null;
+  modalidad: string | null;
+  fechaInicio: string | null;
+  fechaFin: string | null;
   descripcion: string | null;
   numeroRegistro: string | null;
   documentoAprobacion: string | null;
@@ -56,6 +60,7 @@ export interface ParticipanteSugerencia {
 export const ESTADOS_PROYECTO: { value: EstadoProyecto; label: string }[] = [
   { value: 'BORRADOR', label: 'Borrador' },
   { value: 'PENDIENTE', label: 'Pendiente' },
+  { value: 'EN_PROCESO', label: 'En proceso' },
   { value: 'APROBADO', label: 'Aprobado' },
   { value: 'RECHAZADO', label: 'Rechazado' },
   { value: 'ANULADO', label: 'Anulado' },

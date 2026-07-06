@@ -36,11 +36,15 @@ export class ProjectNewComponent {
 
   form = this.fb.nonNullable.group({
     titulo: ['', [Validators.required, Validators.minLength(3)]],
+    tipoEvento: ['', Validators.required],
+    modalidad: ['', Validators.required],
+    fechaInicio: [null as Date | null, Validators.required],
+    fechaFin: [null as Date | null, Validators.required],
     descripcion: [''],
     numeroRegistro: [''],
     documentoAprobacion: [''],
     fechaAprobacion: [null as Date | null],
-    estado: ['BORRADOR' as EstadoProyecto, Validators.required],
+    estado: ['EN_PROCESO' as EstadoProyecto, Validators.required],
   });
 
   onSubmit(): void {
@@ -50,6 +54,10 @@ export class ProjectNewComponent {
     const valores = this.form.getRawValue();
     const proyecto: ProyectoDetalle = {
       titulo: valores.titulo.trim(),
+      tipoEvento: valores.tipoEvento.trim(),
+      modalidad: valores.modalidad.trim(),
+      fechaInicio: toIsoDate(valores.fechaInicio),
+      fechaFin: toIsoDate(valores.fechaFin),
       descripcion: valores.descripcion.trim() || null,
       numeroRegistro: valores.numeroRegistro.trim() || null,
       documentoAprobacion: valores.documentoAprobacion.trim() || null,
